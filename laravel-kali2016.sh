@@ -5,7 +5,8 @@ echo "author: Adam P. Schinder"
 echo "purpose: To automate the laravel setup process. There seem to be a lot of little nagging "
 echo "         'issues' when trying to get laravel up.... This script should fix all of that.  "
 echo "usage: I employed this as root on a x64 kali-2016 box.  It should work for any Debain OS."
-echo "date: 23 May 2016 - Initial Creation..."
+echo "date: 23 May 2016 - Initial Creation... updated some of the installs...  "
+echo "future work: I need to actually error check instead of assuming it worked... "
 echo "#########################################################################################" 
 ######################################
 # Laravel Homestead Install:
@@ -45,23 +46,23 @@ echo "[*] First shutdown apache2..."
 service apache2 stop
 echo "[+] Service apache shutdown!"
 echo "[*] Installing curl, git, git-gui, gitk, and mercurial..."
-apt-get install curl git git-gui git-doc gitk mercurial -y -q
+apt-get install curl git git-gui git-doc gitk mercurial -y -qq
 echo "[+] git and related complete!"
 echo "[*] Installing chkconfig to enable or disable system services.  No different than up update-rc.d - I think...  not sure there..."
-apt-get install chkconfig -y -q
-apt-get -f install -y -q
+apt-get install chkconfig -y -qq
+apt-get -f install -y -qq
 echo "[+] chkconfig complete!"
 echo "[*] Installing python-softlayer..."
-apt-get install python-softlayer 
+apt-get install python-softlayer -y -qq
 echo "[+] python-softlayer complete!"
 echo "[*] Installing php 7.0 and related modules..."
 #apt-get purge php*
-apt-get install php7.0 php7.0-mysql php7.0-sqlite3 php7.0-xml php7.0-mbstring php7.0-phpdbg php7.0-pgsql php7.0-bcmath php7.0-cli php7.0-curl php7.0-dev php7.0-json php7.0-zip php7.0-bz2 libapache2-mod-php7.0 -y -q
-apt-get -f install -y -q
+apt-get install php7.0 php7.0-mysql php7.0-sqlite3 php7.0-xml php7.0-mbstring php7.0-phpdbg php7.0-pgsql php7.0-bcmath php7.0-cli php7.0-curl php7.0-dev php7.0-json php7.0-zip php7.0-bz2 libapache2-mod-php7.0 -y -qq
+apt-get -f install -y -qq
 echo "[+] php complete!"
 echo "[*] Installing mysql and tools..."
-apt-get install mysql-client mysql-common mysql-proxy mysql-sandbox mysql-server mysqltcl mysqltuner mysql-utilities mysql-workbench mysql-workbench-data -y -q
-apt-get -f install -y -q
+apt-get install mysql-client mysql-common mysql-proxy mysql-sandbox mysql-server mysqltcl mysqltuner mysql-utilities mysql-workbench mysql-workbench-data -y -qq
+apt-get -f install -y -qq
 echo "[+] mysql complete!"
 #########################################################################################
 # PACKAGE MAINTAINER VERSION IS RATHER OLD... Like ver 0.9.3 or something... cmd below...
@@ -79,18 +80,18 @@ php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 php -r "unlink('composer-setup.php');"
 chmod 755 /usr/local/bin/composer
 echo "[+] composer complete!"
-apt-get -f install -y -q
+apt-get -f install -y -qq
 composer -V
 echo "[+] composer complete!"
 echo "[*] Installing nodejs for javascript server functionality..."
-apt-get install nodejs nodejs-dev nodejs-dbg -y -q
+apt-get install nodejs nodejs-dev nodejs-dbg -y -qq
 echo "[*] ln -s /usr/bin/nodejs /usr/bin/node"
 ln -s /usr/bin/nodejs /usr/bin/node
-apt-get -f install -y -q
+apt-get -f install -y -qq
 echo "[+] nodejs complete!"
 echo "[*] Installing the npm manager.... Yay package managers..."
-apt-get install npm -y -q
-apt-get -f install -y -q
+apt-get install npm -y -qq
+apt-get -f install -y -qq
 echo "[+] npm complete!"
 echo "----------------------------------------------------------------------------"
 echo " Every Github synchronization will occur within the /root/Github directory. "
@@ -127,27 +128,42 @@ echo "[+] 'composer global require \"laravel/installer\"' completed successfully
 echo "export PATH=$PATH:/root/.composer/vendor/bin" >> /root/.bashrc
 echo "[+] appended 'export PATH=$PATH:/root/.composer/vendor/bin' to '/root/.bashrc' so we can access the laravel command globally"
 echo "[*] Now let's use laravel to create a new project called ... laravel..."
-laravel new laravel
+/root/.composer/vendor/bin/laravel new laravel
 echo "[+] 'laravel new laravel' completed successfully! "
 echo "[*] Before messing with laravel, let's install bower to manage javascript dependencies..."
+cd /root/Composer/laravel
+echo "[*] cd /root/Composer/laravel"
 npm install --global bower
 echo "[+] 'npm install --global bower' was successful!"
 bower init --allow-root
 echo "[+] 'bower init --allow-root' was successful!"
 echo "[*] ensure the permissions and ownership are set to www-data for the base laravel directory"
-echo " !!! Don't forget to check this when you copy the project to /var/www !!!"
+echo " !!! Don't forget to check this when you copy the project to /var/www/ (I'll handle it this time) !!!"
+cd /root/Composer/
+echo "[*] cd /root/Composer/"
 chmod -R 755 laravel/
-echo "[+] -R 755 laravel/"
+echo "[+] chmod -R 755 laravel/"
 chown -Rf www-data laravel/
-echo "[+] -Rf www-data laravel/"
+echo "[+] chown -Rf www-data laravel/"
 chgrp -R root laravel/
-echo "[+] -R root laravel/"
+echo "[+] chgrp -R root laravel/"
 echo "[*] All right..... Let's bring up apache2 and php7.0-fpm..."
+echo "[*] TAKE OFF THE HTML ON THE DOCUMENT ROOT FOR THESE --> just '/var/www/'"
+gedit /etc/apache2/000-default.conf
+gedit /etc/apache2/default-ssl.conf
 service apache2 start
 service php7.0-fpm start
 echo "[+] services started!"
 echo "[*] Create a 'phpinfo.php' file in '/var/www/' to debug php errors..."
 cd /var/www/
+cp /root/Composer/laravel .
+echo "[+] cp /root/Composer/laravel ."
+chmod -R 755 laravel/
+echo "[+] chmod -R 755 laravel/"
+chown -Rf www-data laravel/
+echo "[+] chown -Rf www-data laravel/"
+chgrp -R root laravel/
+echo "[+] chgrp -R root laravel/"
 touch phpinfo.php
 echo "<?php " >> phpinfo.php
 echo "// Show all information, defaults to INFO_ALL " >> phpinfo.php
@@ -157,8 +173,9 @@ echo "[+] 'phpinfo.php' created successfully"
 echo "[*] Now let's enable mod-rewrite in apache2..."
 echo "    in each directory, httpd.conf enable mod_rewrite allows the url to be hidden in the browser"
 echo "    don't forget to paste in the url to app.php"
-echo "[*] apache2ctl status"
-apache2ctl status
+cp phpinfo.php html/
+echo "[*] apache2ctl status -M"
+apache2ctl -M
 echo "[*] a2enmod rewrite"
 a2enmod rewrite
 #apache2ctl mod_rewrite enable
@@ -166,28 +183,26 @@ echo "[*] service apache2 restart"
 service apache2 restart
 echo "[*] systemctl status apache2.service"
 systemctl status apache2.service 
-echo "[*] apache2ctl status (again)"
-apache2ctl status
-echo "[+] Should be working now!"
+echo "[*] apache2ctl status -M (again)"
+apache2ctl -M
+echo "[+] Should be enabled now!"
 #application/config
 #default => mysql
 #enter in your credentials and the database you are using
 #check phpmyadmin to ensure the database is up
 cd /root/Composer/laravel 
 echo "[*] cd /root/Composer/laravel"
-mv .env .env.bak
-echo "[*] mv .env .env.bak"
-echo "APP_DEBUG=true" >> .env
-echo "APP_URL=http://localhost" >> .env
-echo "DB_CONNECTION=rds" >> .env
-echo "DB_HOST=localhost" >> .env
-echo "DB_PORT=3306" >> .env
-echo "DB_DATABASE=database_name" >> .env
-echo "DB_USERNAME=root" >> .env
-echo "DB_PASSWORD=replace_me" >> .env
-echo "APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> .env
-echo "APP_URL=http://localhost" >> .env
-echo "[+] New '.env' file created"
+echo "APP_DEBUG=true" >> .env.test
+echo "APP_URL=http://localhost" >> .env.test
+echo "DB_CONNECTION=rds" >> .env.test
+echo "DB_HOST=localhost" >> .env.test
+echo "DB_PORT=3306" >> .env.test
+echo "DB_DATABASE=database_name" >> .env.test
+echo "DB_USERNAME=root" >> .env.test
+echo "DB_PASSWORD=replace_me" >> .env.test
+echo "APP_KEY=base64:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" >> .env.test
+echo "APP_URL=http://localhost" >> .env.test
+echo "[+] New '.env.test' file created"
 
 #echo "Delete the placeholder key in application.php!"
 #gedit app.php
@@ -200,7 +215,8 @@ echo "[+] New '.env' file created"
 
 echo "----------------------------------------------------------------------------"
 echo " Well....  That ought to do it.  If you restart your computer, be sure to   "
-echo " restart the apache2 and php services again!"
+echo " restart the apache2 and php services again!  Go to localhost/laravel/public"
+echo " and you will be greeted by the defalt laravel page.                        "
 echo "----------------------------------------------------------------------------"
 
 #cd /var/www/spanner/
