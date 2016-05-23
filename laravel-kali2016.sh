@@ -149,8 +149,8 @@ chgrp -R root laravel/
 echo "[+] chgrp -R root laravel/"
 echo "[*] All right..... Let's bring up apache2 and php7.0-fpm..."
 echo "[*] TAKE OFF THE HTML ON THE DOCUMENT ROOT FOR THESE --> just '/var/www/'"
-gedit /etc/apache2/000-default.conf
-gedit /etc/apache2/default-ssl.conf
+gedit /etc/apache2/sites-available/000-default.conf
+gedit /etc/apache2/sites-available/default-ssl.conf
 service apache2 start
 service php7.0-fpm start
 echo "[+] services started!"
