@@ -56,7 +56,7 @@ echo "[*] Installing python-softlayer..."
 apt-get install python-softlayer -y -qq
 echo "[+] python-softlayer complete!"
 echo "[*] Installing php 7.0 and related modules..."
-#apt-get purge php*
+apt-get purge php*
 apt-get install php7.0 php7.0-mysql php7.0-sqlite3 php7.0-xml php7.0-mbstring php7.0-phpdbg php7.0-pgsql php7.0-bcmath php7.0-cli php7.0-curl php7.0-dev php7.0-json php7.0-zip php7.0-bz2 libapache2-mod-php7.0 -y -qq
 apt-get -f install -y -qq
 echo "[+] php complete!"
@@ -126,6 +126,7 @@ echo "[*] Let's use composer to install laravel to the system globally..."
 composer global require "laravel/installer"
 echo "[+] 'composer global require \"laravel/installer\"' completed successfully!"
 echo "export PATH=$PATH:/root/.composer/vendor/bin" >> /root/.bashrc
+chmod 755 /usr/local/bin/composer
 echo "[+] appended 'export PATH=$PATH:/root/.composer/vendor/bin' to '/root/.bashrc' so we can access the laravel command globally"
 echo "[*] Now let's use laravel to create a new project called ... laravel..."
 /root/.composer/vendor/bin/laravel new laravel
@@ -156,7 +157,7 @@ service php7.0-fpm start
 echo "[+] services started!"
 echo "[*] Create a 'phpinfo.php' file in '/var/www/' to debug php errors..."
 cd /var/www/
-cp /root/Composer/laravel .
+cp -rf /root/Composer/laravel .
 echo "[+] cp /root/Composer/laravel ."
 chmod -R 755 laravel/
 echo "[+] chmod -R 755 laravel/"
